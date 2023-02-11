@@ -1,0 +1,20 @@
+.dotContainer {
+    display: flex;
+    align-items: center;
+
+}
+.dot {
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+}
+
+.connected {
+    background-color: #28a745;
+}
+.disconnected{
+    background-color: #dc3545;
+}
+.statusText {
+    margin: 0 10px;
+}

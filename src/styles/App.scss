@@ -1,0 +1,59 @@
+.BigText {
+  font-size: calc(20px + 4vh);
+  color: #664300;
+  font-weight: 900;
+}
+
+.SmallText {
+  font-size: calc(20px + 2vh);
+  color: #664300;
+  font-weight: 400;
+}
+
+.StatusRow {
+  position: relative;
+  align-self: flex-start;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: auto;
+}
+
+.Content {
+  position: relative;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  margin-bottom: auto;
+}
+
+.Container {
+  position: fixed;
+  display: flex;
+  height: 100%;
+  width: 100vw;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: #FFCD4C 60%;
+
+  &::after {
+    display: flex;
+    content: "";
+    padding: 0.5em;
+  }
+  &::before {
+    display: flex;
+    content: "";
+    padding: 0.5em;
+  }
+}
+
+.Main {
+  height: 100vh;
+}
