@@ -8,7 +8,6 @@ import ConnectionStatus from "./components/ConnectionStatus";
 const App = () => {
     const [index, setIndex] = useState(0);
     const emotions = ["happy", "relaxed", "sad", "angry"];
-    const [prevAccuracy, setPrevAccuracy] = useState(0);
     const [accuracy, setAccuracy] = useState(0);
     useEffect(() => {
         setAccuracy(Math.random() * 100);
