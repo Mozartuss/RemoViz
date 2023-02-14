@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/emoviz.iml" filepath="$PROJECT_DIR$/.idea/emoviz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/RemoViz.iml" filepath="$PROJECT_DIR$/.idea/RemoViz.iml" />
     </modules>
   </component>
 </project>

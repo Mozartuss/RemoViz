@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import "../styles/ConnectionStatus.css";
 
-const ConnectionStatus: React.FC = () => {
-    const [isConnected, setIsConnected] = useState<boolean>(false);
+interface ConnectionStatusProps {
+    isConnected: boolean;
+    onClick: () => void;
+}
+
+const ConnectionStatus = ({isConnected, onClick}: ConnectionStatusProps): JSX.Element => {
 
     return (
-        <div className={"dotContainer"}>
-            <div className={ isConnected ? " dot connected" : " dot disconnected"} />
+        <div className={"dotContainer"} onClick={onClick}>
+            <div className={isConnected ? " dot connected" : " dot disconnected"}/>
             <p className={"statusText SmallText"}>
                 {isConnected ? 'Connected' : 'Disconnected'}
             </p>
