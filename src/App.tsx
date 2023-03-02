@@ -15,7 +15,6 @@ interface ReceivedData {
 }
 
 const App = () => {
-    const ip = "192.168.178.45"
     const emotions = ["happy", "relaxed", "sad", "angry"];
     const [accuracy, setAccuracy] = useState(0);
     const [emotion, setEmotion] = useState<number>(0);
@@ -26,18 +25,22 @@ const App = () => {
 
     useEffect(() => {
         if (socket && isConnected && isRetrievingData) {
+            socket.connected && toast.info("Retrieving data...",)
             socket.emit('start-retrieving-data');
-
             socket.on('processed-data', (data) => {
                 const transformed_data: ReceivedData = JSON.parse(data);
                 console.log(transformed_data)
-                setAccuracy(transformed_data.accuracy);
+                setAccuracy(transformed_data.accuracy * 100);
                 setEmotion(transformed_data.emotion);
 
             });
             return () => {
                 socket.emit('stop-retrieving-data');
                 socket.disconnect();
+                toast.error("Disconnected from server")
+                setSocket(null);
+                setIsConnected(false);
+                setIsRetrievingData(false);
             };
         }
     }, [socket, isConnected, isRetrievingData]);
@@ -45,20 +48,55 @@ const App = () => {
     const handleStream = () => {
         if (isRetrievingData) {
             setIsRetrievingData(false);
-            toast.success("Stream stopped");
+            toast.error("Stream stopped");
             setIsConnected(false);
+            setAccuracy(0);
+            setEmotion(0);
             return;
-
         } else {
             if (!isConnected) {
-                setSocket(io('http://localhost:5000'));
-                setIsConnected(true);
-                toast.success("Connected to server");
+                const s = io('http://192.168.178.45:5000');
+                setSocket(s);
+
             }
-            setIsRetrievingData(true);
-            toast.success("Stream started");
+            if (socket) {
+                if (socket.connected) {
+                    setIsRetrievingData(true);
+                    return;
+                } else {
+                    toast.error("Could not connect to server")
+                    return;
+                }
+
+            }
         }
     };
+
+    useEffect(() => {
+        if (socket && !isConnected) {
+            socket.on('connect', () => {
+                toast.success('Connected to server.');
+                setIsConnected(true);
+            });
+            socket.on('disconnect', () => {
+                toast.error('Disconnected from server.');
+                setIsConnected(false);
+            });
+            return () => {
+                socket.off('connect');
+                socket.off('disconnect');
+            };
+        }
+    }, [socket, isConnected]);
+    const getButtonText = () => {
+        if (!isConnected && !isRetrievingData) {
+            return "Connect to Server"
+        } else if (isConnected && isRetrievingData) {
+            return "Stop & Disconnect"
+        } else if (isConnected && !isRetrievingData) {
+            return "Start Stream"
+        }
+    }
 
 
     return (
@@ -67,7 +105,7 @@ const App = () => {
                 <ConnectionStatus isConnected={isConnected}/>
                 <div className={"ButtonContainer"}>
                     <button className={"Button"}
-                            onClick={handleStream}>{isRetrievingData ? "Stop Stream" : "Start Stream"}</button>
+                            onClick={handleStream}>{getButtonText()}</button>
                 </div>
             </div>
             <div className={"Content"}>
