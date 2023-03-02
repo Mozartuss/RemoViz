@@ -3,13 +3,13 @@ import "../styles/ConnectionStatus.css";
 
 interface ConnectionStatusProps {
     isConnected: boolean;
-    onClick: () => void;
+
 }
 
-const ConnectionStatus = ({isConnected, onClick}: ConnectionStatusProps): JSX.Element => {
+const ConnectionStatus = ({isConnected}: ConnectionStatusProps): JSX.Element => {
 
     return (
-        <div className={"dotContainer"} onClick={onClick}>
+        <div className={"dotContainer"}>
             <div className={isConnected ? " dot connected" : " dot disconnected"}/>
             <p className={"statusText SmallText"}>
                 {isConnected ? 'Connected' : 'Disconnected'}

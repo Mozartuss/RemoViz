@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import "./styles/App.scss";
 
 import EmotionEmojis from "./components/EmojiMorph";
@@ -6,64 +6,69 @@ import TextMorph from "./components/TextMorph";
 import ConnectionStatus from "./components/ConnectionStatus";
 import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import io, {Socket} from 'socket.io-client';
+import {DefaultEventsMap} from "socket.io/dist/typed-events";
 
-interface receivedData {
+interface ReceivedData {
     accuracy: number;
     emotion: number;
 }
 
 const App = () => {
+    const ip = "192.168.178.45"
     const emotions = ["happy", "relaxed", "sad", "angry"];
     const [accuracy, setAccuracy] = useState(0);
     const [emotion, setEmotion] = useState<number>(0);
-    const intervalIdRef = useRef<NodeJS.Timer | null>(null);
+    //const [isConnected, setIsConnected] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
-    const startDisplayEmotion = useCallback(() => {
-        console.log("started display emotion")
-        intervalIdRef.current = setInterval(() => {
-            fetch('http://localhost:5000/api/count')
-                .then(response => response.text())
-                .then((data: string) => {
-                    const receivedData: receivedData = JSON.parse(data);
-                    setAccuracy(receivedData.accuracy);
-                    setEmotion(receivedData.emotion);
-                })
-                .catch(error => console.log(error));
-        }, 4000);
-    },[]);
-    const stopDisplayEmotion = useCallback((): void => {
-        console.log("stopped display emotion")
-        if (intervalIdRef.current) {
-            clearInterval(intervalIdRef.current);
-            intervalIdRef.current = null;
-        }
-        setEmotion(0);
-        setAccuracy(0);
-    },[]);
+    const [isRetrievingData, setIsRetrievingData] = useState(false);
+    const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
 
     useEffect(() => {
-        isConnected ? startDisplayEmotion() : stopDisplayEmotion();
-    }, [isConnected]);
-    const tryToConnect = (connection: boolean): void => {
-        if (connection) {
-            console.log("started connection")
-            fetch("http://localhost:5000/status")
-                .then((response: Response) => {
-                    response.ok ? setIsConnected(true) : setIsConnected(false);
-                })
-                .catch(() => {
-                    toast.error('Failed to connect to server!');
-                });
-        } else {
-            console.log("stopped connection");
+        if (socket && isConnected && isRetrievingData) {
+            socket.emit('start-retrieving-data');
+
+            socket.on('processed-data', (data) => {
+                const transformed_data: ReceivedData = JSON.parse(data);
+                console.log(transformed_data)
+                setAccuracy(transformed_data.accuracy);
+                setEmotion(transformed_data.emotion);
+
+            });
+            return () => {
+                socket.emit('stop-retrieving-data');
+                socket.disconnect();
+            };
+        }
+    }, [socket, isConnected, isRetrievingData]);
+
+    const handleStream = () => {
+        if (isRetrievingData) {
+            setIsRetrievingData(false);
+            toast.success("Stream stopped");
             setIsConnected(false);
+            return;
+
+        } else {
+            if (!isConnected) {
+                setSocket(io('http://localhost:5000'));
+                setIsConnected(true);
+                toast.success("Connected to server");
+            }
+            setIsRetrievingData(true);
+            toast.success("Stream started");
         }
     };
+
 
     return (
         <div className={"Container"}>
             <div className={"StatusRow"}>
-                <ConnectionStatus isConnected={isConnected} onClick={() => tryToConnect(!isConnected)}/>
+                <ConnectionStatus isConnected={isConnected}/>
+                <div className={"ButtonContainer"}>
+                    <button className={"Button"}
+                            onClick={handleStream}>{isRetrievingData ? "Stop Stream" : "Start Stream"}</button>
+                </div>
             </div>
             <div className={"Content"}>
                 <TextMorph className={"BigText"}>{`${accuracy.toFixed(2)}%`}</TextMorph>

@@ -20,6 +20,21 @@
   margin-bottom: auto;
 }
 
+.Button{
+  background-color: #FFCD4C;
+  color: #664300;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 900;
+  border: 2px solid #664300;
+}
+
 .Content {
   position: relative;
   align-self: flex-start;

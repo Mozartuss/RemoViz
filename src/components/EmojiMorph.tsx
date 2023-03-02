@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useSpring, animated} from "@react-spring/web";
 import {interpolate} from "flubber";
 import {mouths, leftEyes, rightEyes, rightEyeBrows, leftEyeBrows} from "../emojis";
@@ -14,6 +14,7 @@ const EmotionEmojis = ({index}: EmotionEmojisProps): JSX.Element => {
     const originalHeight = 36;
     const aspectRatio = (originalWidth / originalHeight) * 0.1;
     const windowDimensions = useWindowDimensions();
+    const [animation, setAnimation] = useState<boolean>(false);
     const [activeIndex, setActiveIndex] = useState<number>(0);
     const [interpolators, setInterpolators] = useState({
         mouth: (_: number) => mouths[activeIndex],
@@ -22,6 +23,11 @@ const EmotionEmojis = ({index}: EmotionEmojisProps): JSX.Element => {
         leftEyeBrow: (_: number) => leftEyeBrows[activeIndex],
         rightEyeBrow: (_: number) => rightEyeBrows[activeIndex]
     });
+
+    useEffect(() => {
+        setAnimation(index !== activeIndex);
+    });
+
     const animationProps = useSpring({
         from: {x: 0},
         to: {
@@ -31,11 +37,12 @@ const EmotionEmojis = ({index}: EmotionEmojisProps): JSX.Element => {
             clamp: true,
             duration: 200
         },
-        reset: false,
+        reset: animation,
     });
 
-    useMemo(() => {
-        console.log("useMemo called");
+
+
+    useEffect(() => {
         setActiveIndex((prevIndex: number) => {
             setInterpolators({
                 mouth: interpolate(mouths[prevIndex], mouths[index], {
@@ -68,6 +75,7 @@ const EmotionEmojis = ({index}: EmotionEmojisProps): JSX.Element => {
             maxHeight: windowDimensions.height,
             height: "50vh"
         }}>
+
             <svg
                 width="100%"
                 height="100%"
